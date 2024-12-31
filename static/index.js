@@ -22,7 +22,30 @@ window.addEventListener("gamepaddisconnected", (event) => {
   console.log("disconnected");
 });
 
-function handleButtons(buttons) {
+function handleZooming(buttons) {
+  if (buttons[1].pressed && !isZoomingOut) {
+    // 'B' button for zoom out
+    map.zoomOut();
+    isZoomingOut = true;
+  } else if (!buttons[1].pressed) {
+    isZoomingOut = false;
+  }
+
+  if (buttons[0].pressed && !isZoomingIn) {
+    // 'A' button for zoom in
+    map.zoomIn();
+    isZoomingIn = true;
+  } else if (!buttons[0].pressed) {
+    isZoomingIn = false;
+  }
+}
+
+function handlePanning(axes) {
+  // right is positive
+  const leftRightAxis = axes[0]
+  // down is positive
+  const upDownAxis = axes[1]
+
   const currentZoom = map.getZoom();
 
   let step;
@@ -40,44 +63,21 @@ function handleButtons(buttons) {
     step = 1;
   }
 
-  const dPadIdx = [12, 13, 14, 15];
+  const currentCenter = map.getCenter();
   let newCenter = null;
 
-  for (let i = 0; i < buttons.length; i++) {
-    if (dPadIdx.includes(i) && buttons[i].pressed) {
-      const currentCenter = map.getCenter();
-
-      if (i === 12) {
-        // D-pad up
-        newCenter = [currentCenter.lat + step, currentCenter.lng];
-      } else if (i === 13) {
-        // D-pad down
-        newCenter = [currentCenter.lat - step, currentCenter.lng];
-      } else if (i === 14) {
-        // D-pad left
-        newCenter = [currentCenter.lat, currentCenter.lng - step];
-      } else if (i === 15) {
-        // D-pad right
-        newCenter = [currentCenter.lat, currentCenter.lng + step];
-      }
-    }
-  }
-
-  // Handle zoom buttons
-  if (buttons[1].pressed && !isZoomingOut) {
-    // 'B' button for zoom out
-    map.zoomOut();
-    isZoomingOut = true;
-  } else if (!buttons[1].pressed) {
-    isZoomingOut = false;
-  }
-
-  if (buttons[0].pressed && !isZoomingIn) {
-    // 'A' button for zoom in
-    map.zoomIn();
-    isZoomingIn = true;
-  } else if (!buttons[0].pressed) {
-    isZoomingIn = false;
+  if (upDownAxis === -1) {
+    // stick up
+    newCenter = [currentCenter.lat + step, currentCenter.lng];
+  } else if (upDownAxis === 1) {
+    // stick down
+    newCenter = [currentCenter.lat - step, currentCenter.lng];
+  } else if (leftRightAxis === -1) {
+    // stick left
+    newCenter = [currentCenter.lat, currentCenter.lng - step];
+  } else if (leftRightAxis === 1) {
+    // stick right
+    newCenter = [currentCenter.lat, currentCenter.lng + step];
   }
 
   return newCenter;
@@ -87,7 +87,8 @@ function gameLoop() {
   if (controllerIndex !== null) {
     const gamepad = navigator.getGamepads()[controllerIndex];
 
-    const newCenter = handleButtons(gamepad.buttons);
+    handleZooming(gamepad.buttons);
+    const newCenter = handlePanning(gamepad.axes)
     if (newCenter) {
       map.panTo(newCenter, { animate: false });
     }
