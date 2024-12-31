@@ -64,19 +64,19 @@ function handleButtons(buttons) {
   }
 
   // Handle zoom buttons
-  if (buttons[4].pressed && !isZoomingOut) {
-    // Left button for zoom out
+  if (buttons[1].pressed && !isZoomingOut) {
+    // 'B' button for zoom out
     map.zoomOut();
     isZoomingOut = true;
-  } else if (!buttons[4].pressed) {
+  } else if (!buttons[1].pressed) {
     isZoomingOut = false;
   }
 
-  if (buttons[5].pressed && !isZoomingIn) {
-    // Right button for zoom in
+  if (buttons[0].pressed && !isZoomingIn) {
+    // 'A' button for zoom in
     map.zoomIn();
     isZoomingIn = true;
-  } else if (!buttons[5].pressed) {
+  } else if (!buttons[0].pressed) {
     isZoomingIn = false;
   }
 
