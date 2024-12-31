@@ -1,4 +1,4 @@
-# map-ctlr
+# map-gmpd
 
 Navigate maps using a gamepad.
 
